@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Inventaris Ruangan — Smart Inventory Management</title>
+<meta name="description" content="Sistem manajemen inventaris ruangan premium: kelola barang, ruangan, kondisi, dan nilai inventaris dengan mudah." />
+
+<!-- PWA -->
+<link rel="manifest" href="manifest.json" />
+<meta name="theme-color" content="#4f46e5" />
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png" />
+<link rel="apple-touch-icon" href="icons/icon-192.png" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Inventaris" />
+
+<!-- Font -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap" rel="stylesheet" />
+
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- ============================================================
+     BACKGROUND DECORATION (fixed, purely visual)
+     ============================================================ -->
+<div class="app-bg" aria-hidden="true">
+  <div class="bg-grid"></div>
+</div>
+
+<!-- ============================================================
+     HEADER
+     ============================================================ -->
+<header class="app-header" id="appHeader">
+  <div class="header-blobs" aria-hidden="true">
+    <span class="blob blob-1"></span>
+    <span class="blob blob-2"></span>
+    <span class="blob blob-3"></span>
+  </div>
+
+  <div class="header-inner">
+    <div class="brand">
+      <div class="brand-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M3 7.5L12 3l9 4.5v9L12 21l-9-4.5v-9z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+          <path d="M3 7.5L12 12l9-4.5" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+          <path d="M12 12v9" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <h1>Inventaris Ruangan</h1>
+        <p>Smart Inventory Management</p>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <button type="button" class="icon-btn" id="installBtn" aria-label="Install aplikasi" hidden>
+        <span class="icon-btn-emoji">📲</span>
+        <span class="icon-btn-label">Install App</span>
+      </button>
+      <button type="button" class="icon-btn icon-btn-round" id="darkModeToggle" aria-label="Aktifkan mode gelap">
+        <span id="darkModeIcon">🌙</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- ============================================================
+     MAIN CONTENT
+     ============================================================ -->
+<main class="app-main">
+
+  <!-- ============ DASHBOARD STATISTIK ============ -->
+  <section class="section stats-section" aria-labelledby="statsHeading">
+    <h2 id="statsHeading" class="sr-only">Ringkasan Statistik</h2>
+    <div class="stats-grid" id="statsGrid">
+
+      <div class="stat-card" style="--delay:0.1s">
+        <div class="stat-icon stat-icon-blue" aria-hidden="true">📦</div>
+        <div class="stat-body">
+          <span class="stat-label">Total Barang</span>
+          <span class="stat-value" id="statTotalBarang" data-count="0">0</span>
+        </div>
+        <div class="stat-glow"></div>
+      </div>
+
+      <div class="stat-card" style="--delay:0.2s">
+        <div class="stat-icon stat-icon-green" aria-hidden="true">✅</div>
+        <div class="stat-body">
+          <span class="stat-label">Kondisi Baik</span>
+          <span class="stat-value" id="statKondisiBaik" data-count="0">0</span>
+        </div>
+        <div class="stat-glow"></div>
+      </div>
+
+      <div class="stat-card" style="--delay:0.3s">
+        <div class="stat-icon stat-icon-amber" aria-hidden="true">⚠️</div>
+        <div class="stat-body">
+          <span class="stat-label">Barang Rusak</span>
+          <span class="stat-value" id="statBarangRusak" data-count="0">0</span>
+        </div>
+        <div class="stat-glow"></div>
+      </div>
+
+      <div class="stat-card" style="--delay:0.4s">
+        <div class="stat-icon stat-icon-violet" aria-hidden="true">💰</div>
+        <div class="stat-body">
+          <span class="stat-label">Total Nilai Inventaris</span>
+          <span class="stat-value stat-value-currency" id="statTotalNilai" data-count="0">Rp0</span>
+        </div>
+        <div class="stat-glow"></div>
+      </div>
+
+    </div>
+  </section>
+
+  <div class="content-grid">
+
+    <!-- ============ FORM TAMBAH / EDIT INVENTARIS ============ -->
+    <section class="section form-section card-surface" id="formSection" aria-labelledby="formHeading">
+      <div class="section-head">
+        <h2 id="formHeading" class="form-title" id="formTitle">Tambah Inventaris</h2>
+        <p class="section-sub">Lengkapi data barang untuk menambah atau memperbarui inventaris.</p>
+      </div>
+
+      <form id="inventarisForm" novalidate>
+        <input type="hidden" id="itemId" value="" />
+
+        <div class="field-group">
+          <input type="text" id="namaBarang" class="field-input" placeholder=" " autocomplete="off" />
+          <label for="namaBarang" class="field-label">Nama Barang</label>
+          <span class="field-error" id="errNamaBarang" role="alert"></span>
+        </div>
+
+        <div class="field-group">
+          <input type="text" id="kodeInventaris" class="field-input" placeholder=" " autocomplete="off" />
+          <label for="kodeInventaris" class="field-label">Kode Inventaris</label>
+          <span class="field-error" id="errKodeInventaris" role="alert"></span>
+        </div>
+
+        <div class="field-group">
+          <input type="text" id="namaRuangan" class="field-input" placeholder=" " autocomplete="off" list="ruanganList" />
+          <label for="namaRuangan" class="field-label">Nama Ruangan</label>
+          <datalist id="ruanganList"></datalist>
+          <span class="field-error" id="errNamaRuangan" role="alert"></span>
+        </div>
+
+        <div class="field-row">
+          <div class="field-group">
+            <input type="number" id="jumlahBarang" class="field-input" placeholder=" " min="1" step="1" />
+            <label for="jumlahBarang" class="field-label">Jumlah Barang</label>
+            <span class="field-error" id="errJumlahBarang" role="alert"></span>
+          </div>
+
+          <div class="field-group">
+            <input type="text" inputmode="numeric" id="hargaSatuan" class="field-input" placeholder=" " autocomplete="off" />
+            <label for="hargaSatuan" class="field-label">Harga Satuan</label>
+            <span class="field-hint">Format Rupiah otomatis</span>
+            <span class="field-error" id="errHargaSatuan" role="alert"></span>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <select id="kondisiBarang" class="field-input field-select">
+            <option value="" disabled selected hidden> </option>
+            <option value="Baik">Baik</option>
+            <option value="Rusak Ringan">Rusak Ringan</option>
+            <option value="Rusak Berat">Rusak Berat</option>
+          </select>
+          <label for="kondisiBarang" class="field-label">Kondisi Barang</label>
+          <span class="field-error" id="errKondisiBarang" role="alert"></span>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn btn-ghost" id="btnCancel" hidden>Batal</button>
+          <button type="submit" class="btn btn-primary" id="btnSubmit">
+            <span class="btn-label">Simpan</span>
+            <span class="btn-spinner" hidden aria-hidden="true"></span>
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <!-- ============ DAFTAR INVENTARIS ============ -->
+    <section class="section list-section" aria-labelledby="listHeading">
+      <div class="section-head list-head">
+        <div>
+          <h2 id="listHeading">Daftar Inventaris</h2>
+          <p class="section-sub">Kelola seluruh barang yang tercatat di sistem.</p>
+        </div>
+      </div>
+
+      <!-- Search & Filter -->
+      <div class="toolbar card-surface">
+        <div class="search-box">
+          <span class="search-icon" aria-hidden="true">🔍</span>
+          <input type="text" id="searchInput" placeholder="Cari nama barang atau kode inventaris..." aria-label="Cari inventaris" />
+        </div>
+        <div class="filter-row">
+          <select id="filterRuangan" class="filter-select" aria-label="Filter berdasarkan ruangan">
+            <option value="">Semua Ruangan</option>
+          </select>
+          <select id="filterKondisi" class="filter-select" aria-label="Filter berdasarkan kondisi">
+            <option value="">Semua Kondisi</option>
+            <option value="Baik">Baik</option>
+            <option value="Rusak Ringan">Rusak Ringan</option>
+            <option value="Rusak Berat">Rusak Berat</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Item grid -->
+      <div class="item-grid" id="itemGrid" aria-live="polite"></div>
+
+      <!-- Empty state -->
+      <div class="empty-state" id="emptyState" hidden>
+        <div class="empty-icon">📦</div>
+        <h3>Data tidak ditemukan</h3>
+        <p>Coba gunakan kata kunci lain.</p>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- ============ DATA MANAGEMENT ============ -->
+  <section class="section data-mgmt card-surface" aria-labelledby="dataMgmtHeading">
+    <div class="section-head">
+      <h2 id="dataMgmtHeading">Data Management</h2>
+      <p class="section-sub">Cadangkan, pulihkan, atau atur ulang data inventaris kamu.</p>
+    </div>
+    <div class="data-mgmt-actions">
+      <button type="button" class="btn btn-outline" id="btnExport">
+        <span aria-hidden="true">📥</span> Export Data
+      </button>
+      <button type="button" class="btn btn-outline" id="btnImport">
+        <span aria-hidden="true">📤</span> Import Data
+      </button>
+      <input type="file" id="importFileInput" accept="application/json" hidden />
+      <button type="button" class="btn btn-outline btn-danger-outline" id="btnReset">
+        <span aria-hidden="true">🗑️</span> Reset Data
+      </button>
+    </div>
+  </section>
+
+  <footer class="app-footer">
+    <p>Inventaris Ruangan &copy; <span id="footerYear"></span> — Data tersimpan aman di perangkat kamu.</p>
+  </footer>
+</main>
+
+<!-- ============================================================
+     CONFIRMATION MODAL (delete / reset / import)
+     ============================================================ -->
+<div class="modal-backdrop" id="modalBackdrop" hidden>
+  <div class="modal-box" role="alertdialog" aria-modal="true" aria-labelledby="modalTitle" aria-describedby="modalDesc" id="modalBox">
+    <div class="modal-icon" id="modalIcon" aria-hidden="true">⚠️</div>
+    <h3 class="modal-title" id="modalTitle">Hapus Inventaris?</h3>
+    <p class="modal-desc" id="modalDesc">
+      Apakah Anda yakin ingin menghapus data ini?<br />
+      Data yang dihapus tidak dapat dikembalikan.
+    </p>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-ghost" id="modalCancelBtn">Batal</button>
+      <button type="button" class="btn btn-danger" id="modalConfirmBtn">Ya, Hapus</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     TOAST CONTAINER
+     ============================================================ -->
+<div class="toast-container" id="toastContainer" aria-live="polite" aria-atomic="true"></div>
+
+<script src="script.js"></script>
+</body>
+</html>
